@@ -70,10 +70,10 @@ export const loginUser = async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
     }
 
-    // Create JWT token (use environment variable with fallback)
+    // Create JWT token using environment variable
     const token = jwt.sign(
       { id: user._id },
-      process.env.JWT_SECRET || "your_secret_key",
+      process.env.JWT_SECRET,
       {
         expiresIn: "7d",
         algorithm: "HS256",
@@ -83,6 +83,14 @@ export const loginUser = async (req, res) => {
     // Remove password from response
     const userResponse = user.toObject();
     delete userResponse.password;
+
+    // Set secure cookie for credentials
+    res.cookie("authToken", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
 
     res.status(200).json({
       success: true,
