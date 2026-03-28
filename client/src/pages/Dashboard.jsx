@@ -21,7 +21,7 @@ import LeadDetailsModal from "../components/LeadDetailsModal";
 import ContactLeadModal from "../components/ContactLeadModal";
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [dashboardData, setDashboardData] = useState(null);
   const [userTasks, setUserTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,8 +60,11 @@ export default function Dashboard() {
       }
     };
 
-    fetchData();
-  }, []);
+    // Only fetch data after auth context has finished loading
+    if (!authLoading) {
+      fetchData();
+    }
+  }, [authLoading]);
 
   const handleCreateTask = async (taskData) => {
     try {
