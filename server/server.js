@@ -23,21 +23,27 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: (origin, callback) => {
+      // In production, process.env.CLIENT_URL might have a trailing flash or be missing
+      const clUrl = process.env.CLIENT_URL
+        ? process.env.CLIENT_URL.replace(/\/$/, "")
+        : "http://localhost:5173";
+
       const allowedOrigins = [
-        process.env.CLIENT_URL || "http://localhost:5173",
+        clUrl,
         "http://localhost:5173",
         "http://localhost:3000",
+        "https://task-management-act.vercel.app", // Hardcoded fallback for your Vercel app
       ];
-      
+
+      // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error("Not allowed by CORS"));
+        console.log("❌ CORS Blocked:", origin);
+        callback(null, false); // Don't throw error, just don't set headers (fixes 500 error on preflight)
       }
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 

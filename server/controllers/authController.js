@@ -71,14 +71,10 @@ export const loginUser = async (req, res) => {
     }
 
     // Create JWT token using environment variable
-    const token = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-        algorithm: "HS256",
-      },
-    );
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+      algorithm: "HS256",
+    });
 
     // Remove password from response
     const userResponse = user.toObject();
